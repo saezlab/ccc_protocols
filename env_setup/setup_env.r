@@ -13,3 +13,5 @@ remotes::install_github('saezlab/liana@f7ec81b18eb63bc7a7f941e8e2195139f6018b9c'
 remotes::install_github('theislab/kBET@f35171dfb04c7951b8a09ac778faf7424c4b6bc0', upgrade = F)
 
 remotes::install_github("mojaveazure/seurat-disk@9b89970eac2a3bd770e744f63c7763419486b14c", upgrade=F)
+
+remotes::install_github("keepsimpler/StabEco@fe71129dda26db1a0578557808960460e09201f6", upgrade = F)
