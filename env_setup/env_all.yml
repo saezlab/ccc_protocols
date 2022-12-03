@@ -72,7 +72,7 @@ dependencies:
   - contextlib2=21.6.0
   - contourpy=1.0.5
   - cryptography=38.0.2
-  - curl=7.85.0
+  - curl=7.86.0
   - cycler=0.11.0
   - dataclasses=0.8
   - debugpy=1.6.3
@@ -84,7 +84,7 @@ dependencies:
   - et_xmlfile=1.0.1
   - etils=0.8.0
   - executing=1.1.1
-  - expat=2.4.9
+  - expat=2.5.0
   - flax=0.5.0
   - font-ttf-dejavu-sans-mono=2.37
   - font-ttf-inconsolata=3.000
@@ -118,11 +118,11 @@ dependencies:
   - icu=70.1
   - idna=3.4
   - imagesize=1.4.1
-  - importlib-metadata=4.11.4
-  - importlib_metadata=4.11.4
+  - importlib-metadata=5.0.0
+  - importlib_metadata=5.0.0
   - importlib_resources=5.10.0
   - intel-openmp=2022.1.0
-  - ipykernel=6.16.1
+  - ipykernel=6.16.2
   - ipython=8.5.0
   - ipywidgets=8.0.2
   - jax=0.3.23
@@ -132,7 +132,7 @@ dependencies:
   - joblib=1.2.0
   - jpeg=9e
   - jsonschema=4.16.0
-  - jupyter_client=7.4.3
+  - jupyter_client=7.4.4
   - jupyter_core=4.11.1
   - jupyterlab_widgets=3.0.3
   - kernel-headers_linux-64=2.6.32
@@ -148,7 +148,7 @@ dependencies:
   - libbrotlidec=1.0.9
   - libbrotlienc=1.0.9
   - libcblas=3.9.0
-  - libcurl=7.85.0
+  - libcurl=7.86.0
   - libdeflate=1.14
   - libedit=3.1.20191231
   - libev=4.33
@@ -158,7 +158,7 @@ dependencies:
   - libgfortran-ng=12.2.0
   - libgfortran5=12.2.0
   - libgit2=1.5.0
-  - libglib=2.74.0
+  - libglib=2.74.1
   - libgomp=12.2.0
   - libiconv=1.17
   - liblapack=3.9.0
@@ -167,7 +167,7 @@ dependencies:
   - libnsl=2.0.0
   - libopenblas=0.3.21
   - libpng=1.6.38
-  - libprotobuf=3.21.8
+  - libprotobuf=3.21.9
   - libsanitizer=12.2.0
   - libsodium=1.0.18
   - libsqlite=3.39.4
@@ -205,7 +205,7 @@ dependencies:
   - oauthlib=3.2.2
   - openjpeg=2.5.0
   - openpyxl=3.0.10
-  - openssl=1.1.1q
+  - openssl=1.1.1s
   - opt_einsum=3.3.0
   - optax=0.1.3
   - packaging=21.3
@@ -222,7 +222,7 @@ dependencies:
   - pixman=0.40.0
   - pkgutil-resolve-name=1.3.10
   - prompt-toolkit=3.0.31
-  - protobuf=4.21.8
+  - protobuf=4.21.9
   - psutil=5.9.3
   - pthread-stubs=0.4
   - ptyprocess=0.7.0
@@ -257,6 +257,7 @@ dependencies:
   - r-backports=1.4.1
   - r-base=4.1.3
   - r-base64enc=0.1_3
+  - r-bbmisc=1.13
   - r-beeswarm=0.4.0
   - r-bh=1.78.0_0
   - r-biocmanager=1.30.18
@@ -290,6 +291,7 @@ dependencies:
   - r-devtools=2.4.4
   - r-diffobj=0.3.5
   - r-digest=0.6.30
+  - r-domc=1.3.8
   - r-doparallel=1.0.17
   - r-downlit=0.4.2
   - r-dplyr=1.0.10
@@ -302,7 +304,7 @@ dependencies:
   - r-filelock=1.0.2
   - r-fitdistrplus=1.1_8
   - r-fnn=1.1.3.1
-  - r-fontawesome=0.3.0
+  - r-fontawesome=0.4.0
   - r-foreach=1.5.2
   - r-formatr=1.12
   - r-fs=1.5.2
@@ -385,11 +387,11 @@ dependencies:
   - r-polyclip=1.10_4
   - r-praise=1.0.0
   - r-prettyunits=1.1.1
-  - r-processx=3.7.0
+  - r-processx=3.8.0
   - r-profvis=0.3.7
   - r-progressr=0.11.0
   - r-promises=1.2.0.1
-  - r-ps=1.7.1
+  - r-ps=1.7.2
   - r-purrr=0.3.5
   - r-r6=2.5.1
   - r-ragg=1.2.4
@@ -432,7 +434,7 @@ dependencies:
   - r-seurat=4.1.1
   - r-seuratobject=4.1.1
   - r-shape=1.4.6
-  - r-shiny=1.7.2
+  - r-shiny=1.7.3
   - r-sitmo=2.0.2
   - r-snow=0.4_4
   - r-sourcetools=0.1.7
@@ -472,7 +474,7 @@ dependencies:
   - r-xopen=1.0.0
   - r-xtable=1.8_4
   - r-yaml=2.3.6
-  - r-zip=2.2.1
+  - r-zip=2.2.2
   - r-zoo=1.8_11
   - re2=2022.06.01
   - readline=8.1.2
@@ -481,7 +483,7 @@ dependencies:
   - rich=12.6.0
   - rsa=4.9
   - scanpy=1.9.1
-  - scikit-learn=1.1.2
+  - scikit-learn=1.1.3
   - scipy=1.9.3
   - scvi-tools=0.18.0
   - sed=4.8
@@ -509,7 +511,7 @@ dependencies:
   - tk=8.6.12
   - tktable=2.10
   - toolz=0.12.0
-  - torchmetrics=0.10.0
+  - torchmetrics=0.10.1
   - tornado=6.2
   - tqdm=4.64.1
   - traitlets=5.5.0
@@ -538,7 +540,7 @@ dependencies:
   - xorg-xproto=7.0.31
   - xz=5.2.6
   - yaml=0.2.5
-  - yarl=1.7.2
+  - yarl=1.8.1
   - zeromq=4.3.4
   - zipp=3.10.0
   - zlib=1.2.13
