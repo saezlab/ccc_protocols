@@ -1,0 +1,58 @@
+
+CellPhoneDB mean:
+mean_{k,i,j}  = \frac{L_{C_{i}} + R_{C_{j}}}{2}
+
+Geometric mean:
+geometric.mean_{k,i,j} = \sqrt{L_{C_{i}} \cdot R_{C_{j}}}
+
+CellChat Trimean: 
+LRprob_{k,i,j} = \frac{TriMean(L_{C_{i}}) \cdot 
+TriMean(R_{C_{j}})}{0.5 + TriMean(L_{C_{i}}) \cdot 
+TriMean(R_{C_{j}})}
+
+Trim is Tuckey's TriMean:
+TriMean(X) = \frac{Q_{0.25}(X) + 2 \cdot Q_{0.5}(X) + Q_{0.75}(X)}{4}
+where X is the input expression values and Q_{p}(X) denotes the pth quantile of X.
+
+SingleCellSignalR's LRscore:
+LRscore_{k,i,j} = \frac{\sqrt{L_{C_{i}} R_{C_{j}}}}{\sqrt{L_{C_{i}} R_{C_{j}}} + \mu}
+
+NATMI's and Connectome's LRproduct
+LRproduct_{k,i,j} = L_{C_{i}} R_{C_{j}}
+
+NATMI's specificity edge
+SpecificityWeight_{k,i,j} = \frac{L_{C_{i}}}{\sum_{i=1}^{n} L_{C_{i}}} \cdot \frac{R_{C_{j}}}{\sum_{j=1}^{n} R_{C_{i}}}
+
+Connectome's mean z-scores
+z-mean_{k,i,j} = \frac{z_{L_{C_{i}}} + z_{R_{C_{j}}}}{2}
+
+
+where each gene in {M} is z-transformed: 
+X_{z} = (X - mean(X)) / std(X)
+
+
+logFC mean:
+MeanLog2FC_{k,i,j} = \frac{\text{Log2FC}_{C_i,L} + \text{Log2FC}_{C_j,R}}{2}
+
+logFC formula:
+log2FC = \log_2\left(\text{mean}(X_i)\right) - \log_2\left(\text{mean}(X_{\text{not}_i})\right)
+
+
+Rank_aggregate:
+
+
+
+Magnitude vs Specificity
+
+
+Permutation p-values:
+p\text{-value}_{k,i,j} = \frac{1}{P} \sum_{p=1}^{P} [fun_{permuted}(L^*_{C_{i}}, R^*_{C_{j}}) \geq fun_{observed}(L^*_{C_{i}}, R^*_{C_{j}})]
+
+
+In these formulas:
+
+{M} is the library-size normalized and log1p-transformed gene expression matrix
+{k} is the k-th ligand-receptor interaction 
+L_{C_{i}} and R_{C_{j}} represent the expression level of ligand L and receptor R in cell group i and cell group j, respectively
+{P} denotes number of permutations
+{mu} - the mean of the expression matrix
