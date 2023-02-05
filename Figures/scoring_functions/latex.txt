@@ -38,7 +38,10 @@ logFC formula:
 log2FC = \log_2\left(\text{mean}(X_i)\right) - \log_2\left(\text{mean}(X_{\text{not}_i})\right)
 
 
-Rank_aggregate:
+Indicator function:
+I \left\{ L_{C_iC_j}^{expr.prop} \geq 0.1 \text{ 
+and } R_{C_iC_j}^{expr.prop} \geq 0.1   \right\} 
+
 
 
 
@@ -49,6 +52,7 @@ Permutation p-values:
 p\text{-value}_{k,i,j} = \frac{1}{P} \sum_{p=1}^{P} [fun_{permuted}(L^*_{C_{i}}, R^*_{C_{j}}) \geq fun_{observed}(L^*_{C_{i}}, R^*_{C_{j}})]
 
 
+
 In these formulas:
 
 {M} is the library-size normalized and log1p-transformed gene expression matrix
@@ -56,3 +60,37 @@ In these formulas:
 L_{C_{i}} and R_{C_{j}} represent the expression level of ligand L and receptor R in cell group i and cell group j, respectively
 {P} denotes number of permutations
 {mu} - the mean of the expression matrix
+
+
+
+Rank aggregate:
+
+
+rank_mat
+r_{i,j} = \frac{rank_{i,j}}{\max(rank_i)} \quad (1 \leq i \leq m, 1 \leq j \leq n)
+
+Rho for the whole matrix:
+
+p_{i,j} = \text{BetaCDF}(rmat_{i,j}, dist_a_{i,j}, dist_b_{i,j}) \quad (1 \leq i \leq m, 1 \leq j \leq k)
+
+where p is a vector of length k and rmat is a matrix of shape (m, k), where m is the number of rows and k is the number of columns.
+
+(rows are scores from different methods, and k are the interactions)
+
+
+probability for a given element in r_mat:
+\beta_k,_n(x):=(^n_l)x^l(1-x)^{n-l} 
+
+where x is a continuous random variable on the interval [0,1], l is a non-negative integer, and n is a positive integer. 
+
+
+
+pick min -> correct beta pvals
+p_{i} = \min \left\{ \max \left\{ p_i * k, 0 \right\}, 1 \right\} \quad (1 \leq i \leq k)
+
+
+
+
+
+
+
