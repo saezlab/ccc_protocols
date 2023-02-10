@@ -1,5 +1,6 @@
 suppressPackageStartupMessages({
     library(RhpcBLASctl, quietly = T)
+    library(doSNOW, quietly = T)
     
     library(splatter, quietly = T)
     
@@ -25,9 +26,18 @@ source('./simulation_functions.r')
 
 seed = 888
 set.seed(seed)
-data.path<-'/data3/hratch/ccc_protocols/'
-n.cores<-25
-RhpcBLASctl::blas_set_num_threads(n.cores)
+data.path<-'/data/hratch/ccc_protocols/'
+n.cores<-20
+
+gpu<-T
+par.score<-T # whether to parallelize communication scoring externally
+
+if (!gpu){
+    tensorly <- import('tensorly')
+    tensorly$set_backend('pytorch')
+}else{
+    RhpcBLASctl::blas_set_num_threads(n.cores)
+}
 
 add.context.noise<-function(sim, context.noise, contexts){
     colData(sim)[['Context']]<-NULL
@@ -81,11 +91,14 @@ scanorama.batch.correct<-function(sce.batch){
 scvi.batch.correct<-function(sce.batch, seed = 888){
     
     scvi$settings$seed = as.integer(seed)
-    scvi$settings$num_threads = as.integer(1)
-    scvi$settings$dl_num_workers = as.integer(n.cores)
+    
+    if (!gpu){
+        scvi$settings$num_threads = as.integer(1)
+        scvi$settings$dl_num_workers = as.integer(n.cores)
+    }
 
     adata.batch<-zellkonverter::SCE2AnnData(sce.batch, X_name = 'counts') # adata with raw UMI counts as main
-    reticulate::py_set_seed(seed)
+    reticulate::py_set_seed(as.integer(seed))
     scvi$model$SCVI$setup_anndata(adata.batch, layer = 'TrueCounts', batch_key = 'Batch')
     model = scvi$model$SCVI(adata.batch, n_layers = 2L, n_latent = 30L, gene_likelihood= "nb") # non-default args - 
     model$train()
@@ -109,24 +122,33 @@ do.batch.correction<-function(sce.batch){
     sce.scanorama<-scanorama.batch.correct(sce.batch)
     sce.scvi<-scvi.batch.correct(sce.batch)
     sce.batches<-list(sim.scanorama = sce.scanorama, sim.scvi = sce.scvi)
+    
+    # remove PCA from log assay to ensure that it is re-run
+    for (i in 1:length(sce.batches)){
+        sce<-sce.batches[[i]]
+        reducedDims(sce)<-list()
+        sce.batches[[i]]<-sce
+    }
     return(sce.batches)
 }
 
-search.clusters<-function(sce, n.cell.types, iter.limit = 20){
+search.clusters<-function(sce, n.cell.types, cluster.range = 0, iter.limit = 20, verbose = F){
     res.param<-1
     clusters<-scran::clusterCells(sce, use.dimred="PCA", 
                         BLUSPARAM=NNGraphParam(shared = T, cluster.fun="louvain", 
                                               cluster.args=list(resolution=res.param))) 
     n.clusters<-length(unique(clusters))
+    if (verbose){print(paste0('Resolution: ', res.param,'; # of clusters', n.clusters))}
     
     iter <- 1
-    while (n.clusters != n.cell.types){
+    while (!(n.clusters %in% ((n.cell.types-cluster.range):(n.cell.types+cluster.range)))){
         if (n.clusters < n.cell.types){
             res.param = res.param*2
             clusters<-scran::clusterCells(sce, use.dimred="PCA", 
                         BLUSPARAM=NNGraphParam(shared = T, cluster.fun="louvain", 
                                               cluster.args=list(resolution=res.param)))
             n.clusters<-length(unique(clusters))
+            if (verbose){print(paste0('Iteration: ', iter, '; resolution: ', res.param,'; # of clusters', n.clusters))}
         }
         else{
             res.param = res.param/10
@@ -134,32 +156,62 @@ search.clusters<-function(sce, n.cell.types, iter.limit = 20){
                         BLUSPARAM=NNGraphParam(shared = T, cluster.fun="louvain", 
                                               cluster.args=list(resolution=res.param)))
             n.clusters<-length(unique(clusters))
-
+            if (verbose){print(paste0('Iteration: ', iter, '; resolution: ', res.param,'; # of clusters', n.clusters))}
         }
-        if (iter > iter.limit){stop('Too many iterations when searching for cluster resolution')}
+        if (iter > iter.limit){
+            print('Too many iterations when searching for cluster resolution')
+            clusters<-NULL
+            break
+        }
         iter<-iter + 1
     }
     return(clusters)
 }
 
-cluster.cells<-function(sce, assay.type, n.cell.types){
-    sce <- scran::fixedPCA(sce, assay.type = assay.type, subset.row=NULL) # default 50 PCs
+cluster.cells<-function(sce, assay.type, n.cell.types, cluster.method = 'kmeans', ...){
+    if (!('PCA' %in% reducedDimNames(sce))){
+        sce <- scran::fixedPCA(sce, assay.type = assay.type, subset.row=NULL) # default 50 PCs
+    }
     # clustering http://bioconductor.org/books/3.13/OSCA.basic/clustering.html
-    colData(sce)[['Cluster']]<-search.clusters(sce, n.cell.types)
+    
+    if (cluster.method == 'kmeans'){
+        colData(sce)[[paste0('Cluster.', cluster.method)]]<-scran::clusterCells(sce, use.dimred="PCA", 
+                                                       BLUSPARAM=KmeansParam(centers = n.cell.types)) 
+    } else if (cluster.method == 'louvain'){
+#         if (!is.null(clusters)){
+        colData(sce)[[paste0('Cluster.', cluster.method)]]<-search.clusters(sce, n.cell.types, ...)
+    }
     return(sce)
 }
 
+# for setting cluster.method to snn, if didn't get clusters because # of clusters != # of cell types
+check.cluster<-function(sce){
+    cluster.present<-T
+    cluster.method<-'louvain'
+    if (!(paste0('Cluster.', cluster.method) %in% colnames(colData(sce)))){cluster.present = F}
+    return (cluster.present)
+}
+
 quantify.batch.effect<-function(sce, assay.type){
-    nmi<-aricode::NMI(colData(sce)$Group, colData(sce)$Cluster) # clusterability
-    kbet<-kBET(df = t(assays(sce)[[assay.type]]), batch = colData(sce)$Batch, # mixability
+    batch.severity<-list()
+    
+    
+    # clusterability
+    batch.severity[['clusterability.kmeans']]<-(1-aricode::NMI(colData(sce)$Group, colData(sce)[['Cluster.kmeans']])) 
+    if (check.cluster(sce)){
+        batch.severity[['clusterability.louvain']]<-(1-aricode::NMI(colData(sce)$Group, colData(sce)[['Cluster.louvain']])) 
+    }else{
+        batch.severity[['clusterability.louvain']]<-NA
+    }
+    
+    batch.severity[['mixability']]<-kBET(df = t(assays(sce)[[assay.type]]), batch = colData(sce)$Batch, # mixability
                         plot = F)$summary['mean', 'kBET.observed']
     # sil.cluster <- as.data.frame(silhouette(as.numeric(colData(sce)$Cluster), 
     #                               dist(reducedDims(sce)$PCA)))
     # sil.cluster<-mean(aggregate(sil.cluster[, 'sil_width'], list(sil.cluster$cluster), mean)$x)
-    
-    return(list(clusterability = 1 - nmi, mixability = kbet))
-}
 
+    return(batch.severity)
+}
 
 count.negative<-function(df){
     return(length(df[df<0])/length(df))
@@ -174,6 +226,40 @@ replace.negative.counts<-function(sce, fill_val = 0,
     df[df<0]<-fill_val
     assays(sce)[[to_assay]]<-df  
     return(sce)
+}
+
+# for the gpu to work, need to use build_only = T then manually run for some reason
+liana_tensor_c2c_gpu<-function(context_df_dict, upper_rank = 25, runs = 1, init = 'svd', rank = NULL, seed = 888){
+    tensor<-liana_tensor_c2c(context_df_dict = context_df_dict,
+                                       score_col = 'score',
+                                       ligand_col = 'ligand', 
+                                       receptor_col = 'receptor', 
+                                       lr_fill = NaN, 
+                                       cell_fill = NaN,
+                                       how = 'outer',
+                                       seed = 888, 
+                                       conda_env = env.name,
+                                       build_only = T, 
+                                      device = 'cuda:0')
+
+    if(is.null(rank)){
+        py$temp <- tensor$elbow_rank_selection(upper_rank=as.integer(upper_rank),
+                                               runs=as.integer(runs),
+                                               init=init,
+                                               automatic_elbow=TRUE,
+                                               random_state=as.integer(seed))
+        rank <- as.integer(tensor$rank)
+    }
+
+    tensor$compute_tensor_factorization(rank = as.integer(rank),
+                                        random_state=as.integer(seed))
+    return(tensor)
+}
+
+par.comm.score<-function(x){
+    sce<-split.by.context(x[[2]], context_lab = 'Context')
+    scores<-score.communication(sce, x[[3]], pos = F, n.cores = n.cores, expr_prop = as.numeric(x[['expr.prop']]), assay_type = 'logcounts')
+    return(scores)
 }
 
 base_params <- newSplatParams()
@@ -203,6 +289,24 @@ baseline_params <- setParams(
 
 sim.baseline<-splatSimulateGroups(baseline_params, verbose = F)
 
+sim.baseline.viz<-sim.baseline
+
+sim.baseline.viz <- qc.data(sim.baseline.viz)
+sim.baseline.viz <- scater::logNormCounts(sim.baseline.viz)
+sim.baseline.viz <- scran::fixedPCA(sim.baseline.viz, assay.type = 'logcounts', subset.row=NULL) # default 50 PCs
+
+h_ = 7
+w_ = 15
+options(repr.plot.height=h_, repr.plot.width=w_)
+
+g1a<-plotPCA(sim.baseline.viz, colour_by = "Group")
+g1b<-plotPCA(sim.baseline.viz, colour_by = "Batch")
+
+g1<-ggpubr::ggarrange(g1a, g1b, ncol = 2)
+# for (ext in c('.svg', '.png', '.pdf')){ggsave(paste0(data.path, 'figures/', 'batch_effect_baseline', ext), g1, 
+#                                              height = h_, width = w_)}
+g1
+
 set.seed(seed)
 contexts <- BBmisc::chunk(colnames(sim.baseline),
                                     chunk.size = n.cells/n.contexts,
@@ -224,17 +328,45 @@ for (i in seq_along(contexts)){
 }
 sim.baseline.context<-add.context.noise(sim.baseline, context.noise, contexts)
 
+sim.viz<-sim.baseline.context
+sim.viz<-qc.data(sim.viz)
+sim.viz <- scater::logNormCounts(sim.viz)
+sim.viz <- scran::fixedPCA(sim.viz, assay.type = 'logcounts', subset.row=NULL) # default 50 PCs
+
+h_ = 7
+w_ = 20
+options(repr.plot.height=h_, repr.plot.width=w_)
+
+g2a<-plotPCA(sim.viz, colour_by = "Group")
+g2b<-plotPCA(sim.viz, colour_by = "Batch")
+g2c<-plotPCA(sim.viz, colour_by = "Context")
+
+
+g2<-ggpubr::ggarrange(g2a, g2b, g2c, ncol = 3)
+# for (ext in c('.svg', '.png', '.pdf')){ggsave(paste0(data.path, 'figures/', 'batch_effect_baseline_context', ext), g2, 
+#                                              height = h_, width = w_)}
+g2
+
+df<-data.frame(colData(sim.baseline.context))
+cell.counts<-ddply(df, .(df$Context, df$Group), nrow)
+reshape2::dcast(df, Context ~ Group)
+
 # generate a LR PPI on a subset of the genes
 set.seed(seed)
 lr.genes<-sort(as.character(sample(rownames(sim.baseline.context), size = n.lrs, replace = FALSE)))
 lr.ppi<-generate.lr.ppi(lr.genes)
 interacting.lr.genes<-unique(c(lr.ppi$source_genesymbol, lr.ppi$target_genesymbol))
 
-tensor.baseline.context<-list(natmi = 3, sca = 4)
+sim.baseline.context.list<-split.by.context(sim.baseline.context, context_lab = 'Context') 
 
-n.batches<-seq(2, 5, 1)
-batch.locations<-c(0.05, seq(0.1, 0.4, 0.1))
-batch.scales<-c(0.05, seq(0.1, 0.4, 0.1))
+# log-normalize
+sim.baseline.context.list<-lapply(sim.baseline.context.list, FUN = function(sce) {
+    sce <- scater::logNormCounts(sce)
+})
+
+n.batches<-c(2, 4, 5) # 8
+batch.locations<-c(0.01, 0.05, seq(0.1, 0.5, 0.1))
+batch.scales<-c(0.01, 0.05, seq(0.1, 0.5, 0.1))
 
 iter.params.list<-list()
 counter<-1
@@ -249,14 +381,11 @@ for (nb in n.batches){
     }
 }
 
-# iter.params.list = list()
-# iter.params.list[[1]] = list(n.batches = 2, batch.scale = 0.2, batch.location = 0.2)
-# iter.params<-iter.params.list[[1]]
 print(paste0('The number of iterations is: ', length(iter.params.list)))
 
 count.types.names<-c('gold', 'log', 'scanorama', 'scvi')
 res.col.names<-c('iteration', 'n.batches', 'batch.scale', 'batch.location', 
-                 sapply(unlist(lapply(count.types.names, function(a) lapply(c('clusterability', 'mixability'), function (b) c(a, b))), recursive=FALSE), 
+                 sapply(unlist(lapply(count.types.names, function(a) lapply(c('clusterability.kmeans', 'clusterability.louvain', 'mixability'), function (b) c(a, b))), recursive=FALSE), 
                     function(x) paste0(x, collapse = '_')), 
                   sapply(unlist(lapply(c('natmi', 'sca'), 
               function(a) lapply(count.types.names[2:4], function (b) c(a, b))), recursive=FALSE), 
@@ -265,15 +394,18 @@ res.col.names<-c('iteration', 'n.batches', 'batch.scale', 'batch.location',
               function(a) lapply(count.types.names[2:4], function (b) c(a, b))), recursive=FALSE), 
         function(x) paste0('frac_0.1_', 'corr.index_', x[[2]], '_', x[[1]])),
                 sapply(unlist(lapply(c('frac_0', 'frac_0.1'), function(a) lapply(c('natmi', 'sca'), function (b) c(a, b))), recursive=FALSE), 
-                    function(x) paste0(c('n.tensor.elements', x), collapse = '_'))
+                    function(x) paste0(c('n.tensor.elements', x), collapse = '_')), 
+              c('scanorama_frac.negative', 'scvi_frac.negative'),
+        sapply(unlist(lapply(c('frac_0', 'frac_0.1'), function(a) lapply(c('natmi', 'sca'), function (b) c(a, b))), recursive=FALSE), 
+                    function(x) paste0(c('rank', x), collapse = '_'))
                )                                                            
 
 res.df <- data.frame(matrix(ncol = length(res.col.names), nrow = 0))
 colnames(res.df)<-res.col.names
 
-iter<-1
+iter<-49
 
-for (iter.params in iter.params.list){
+for (iter.params in iter.params.list[iter:length(iter.params.list)]){
     print(iter)
     sim_params <- setParams(
         baseline_params,
@@ -285,7 +417,8 @@ for (iter.params in iter.params.list){
         batch.rmEffect = FALSE, # create the gold standard when set to True
 
     )
-
+    
+    print('process')
     sim<-splatSimulateGroups(sim_params, verbose = F)
     sim.gold<-splatSimulateGroups(sim_params, verbose = F, batch.rmEffect = T)
     expr.datasets<-list(sim.gold = sim.gold, sim.log = sim)
@@ -300,6 +433,30 @@ for (iter.params in iter.params.list){
         sce <- scater::logNormCounts(sce)
     })
 
+    print('Cluster A')                      
+    # DEPRECATED: cluster - do separately from batch corrected, this way, if can't identify appropriate # of clusters
+    # DEPRECATED: skips the iteration prior to time-consuming batch correction step
+    for (cluster.method in c('louvain', 'kmeans')){
+        expr.datasets<-lapply(expr.datasets, function(sce) cluster.cells(sce, assay.type = 'logcounts', 
+                                                                             n.cell.types = n.cell.types, 
+                                                                        cluster.method = cluster.method))
+        # allow +-1 cluster if first attempt didnt find # of clusters = # of cell types
+        if (cluster.method == 'louvain'){
+            cluster.present<-sapply(expr.datasets, function(sce) check.cluster(sce))
+            for (count.type in names(cluster.present[!cluster.present])){
+                sce<-cluster.cells(expr.datasets[[count.type]], assay.type = 'logcounts', n.cell.types = n.cell.types, 
+                                   cluster.range = 1, cluster.method = cluster.method)
+                expr.datasets[[count.type]]<-sce
+            }
+        #     cluster.present<-sapply(expr.datasets, function(sce) check.cluster(sce))
+        #     if (any(!cluster.present)){
+        #         iter<-iter + 1
+        #         next
+        #     } 
+        }
+    }
+    
+    print('Batch correct')
     # batch correct 
     # #     # filter for HVGs after log-normalization
     # #     mgv<-scran::modelGeneVar(expr.datasets$gold.standard, assay.type = 'logcounts')
@@ -308,15 +465,31 @@ for (iter.params in iter.params.list){
     # #         sce <- sce[hvg, ] # filter for HVGs from gold-standard dataset
     #         sce <- cluster.cells(sce, assay.type = 'logcounts') # run PCA and SNN clustering 
     #     })
-    sce.batches<-do.batch.correction(expr.datasets$sim.log) # on log-normalized data with batch effects 
-
-    # cluster
-    expr.datasets<-lapply(expr.datasets, function(sce) cluster.cells(sce, assay.type = 'logcounts', 
-                                                                     n.cell.types = n.cell.types))
-    sce.batches<-lapply(sce.batches, function(sce) cluster.cells(sce, assay.type = 'batch.corrected.counts', 
-                                                                n.cell.types = n.cell.types)) 
-
-
+    suppressMessages({sce.batches<-do.batch.correction(expr.datasets$sim.log)}) # on log-normalized data with batch effects 
+     
+    print('Cluster B')
+    # cluster batch-corrected data
+    for (cluster.method in c('louvain', 'kmeans')){
+        sce.batches<-lapply(sce.batches, function(sce) cluster.cells(sce, assay.type = 'batch.corrected.counts', 
+                                                                             n.cell.types = n.cell.types, 
+                                                                        cluster.method = cluster.method))
+        # allow +-1 cluster if first attempt didnt find # of clusters = # of cell types
+        if (cluster.method == 'louvain'){
+            cluster.present<-sapply(sce.batches, function(sce) check.cluster(sce))
+            for (count.type in names(cluster.present[!cluster.present])){
+                sce<-cluster.cells(sce.batches[[count.type]], assay.type = 'batch.corrected.counts', n.cell.types = n.cell.types, 
+                                   cluster.range = 1, cluster.method = cluster.method)
+                sce.batches[[count.type]]<-sce
+            }
+        #     cluster.present<-sapply(sce.batches, function(sce) check.cluster(sce))
+        #     if (any(!cluster.present)){
+        #         iter<-iter + 1
+        #         next
+        #     } 
+        }
+    }
+    
+    print('Batch severity')
     # calculate batch severity
     batch.severity<-setNames(lapply(expr.datasets, function(sce) quantify.batch.effect(sce, assay.type = 'logcounts')), 
         names(expr.datasets))
@@ -325,51 +498,117 @@ for (iter.params in iter.params.list){
                                 names(sce.batches)))
 
     frac.negative<-lapply(sce.batches, function(sce) count.negative(assays(sce)$batch.corrected.counts))
-
-    # score communication
-    # saveRDS(sce.batches, 'scebatches_backup.rds') # remove in the future
+    
+    print('Score communication') # score communication
     sce.batches<-lapply(sce.batches, function(sce) replace.negative.counts(sce)) # also assigns batch corrected data to logcounts assay
     expr.datasets <- c(expr.datasets, sce.batches)
 
-    comm.scores<-list()
-    for (expr.prop in c(0, 0.1)){
-        comm.scores[[paste0('frac_', expr.prop)]]<-lapply(expr.datasets, function(sce) {
-            sce<-split.by.context(sce, context_lab = 'Context')
-            sce<-score.communication(sce, lr.ppi, pos = F, 
-                                    n.cores = n.cores, expr_prop = expr.prop, assay_type = 'logcounts')
-            })
-    }
+    
+    if (par.score){
+        iterator<-expand.grid(c(0, 0.1), names(expr.datasets))
+        iterator<-iterator[order(iterator$Var1),]
+        names(iterator)<-c('expr.prop', 'count.type')
+        iterator<-unname(asplit(iterator, 1))
 
-    # tensors
+        for (i in 1:length(iterator)){
+            element<-as.list(iterator[[i]])
+            names(element)<-c('expr.prop', element[[2]])
+            element[[2]]<-expr.datasets[[element[[2]]]]
+            element[[3]]<-lr.ppi
+            iterator[[i]]<-element
+        }
+
+        # par params---------------------------------------------
+        cl <- makeCluster(n.cores)
+        registerDoSNOW(cl)
+        pb <- txtProgressBar(max = length(iterator), style = 3)
+        progress <- function(n_) setTxtProgressBar(pb, n_)
+        opts <- list(progress = progress)
+
+
+        # iterate---------------------------------------------
+        comm.scores = foreach(i = 1:length(iterator), .packages = c('liana', 'SingleCellExperiment'), .export = c('par.comm.score'),  
+                    .verbose = TRUE, .options.snow = opts) %dopar% {
+            x<-iterator[[i]]
+            scores<-par.comm.score(x)
+        }
+        close(pb)
+        stopCluster(cl)
+
+        #format as non-parallel
+        cs.format<-list() 
+        for (expr.prop in c(0, 0.1)){
+            cs.format[[paste0('frac_', expr.prop)]]<-list()
+            for (count.type in names(expr.datasets)){
+                cs.format[[paste0('frac_', expr.prop)]][[count.type]]<-list()
+            }
+        }
+        for (i in 1:length(iterator)){
+            element<-iterator[[i]]
+            expr.prop<-as.numeric(element[[1]])
+            count.type<-names(element)[[2]]
+            for (score.type in names(comm.scores[[i]])){
+                cs.format[[paste0('frac_', expr.prop)]][[count.type]][[score.type]]<-comm.scores[[i]][[score.type]]
+            }
+
+        }
+        comm.scores<-cs.format
+    }else{
+        comm.scores<-list()
+        for (expr.prop in c(0, 0.1)){
+            comm.scores[[paste0('frac_', expr.prop)]]<-lapply(expr.datasets, function(sce) {
+                sce<-split.by.context(sce, context_lab = 'Context')
+                sce<-score.communication(sce, lr.ppi, pos = F, 
+                                        n.cores = n.cores, expr_prop = expr.prop, assay_type = 'logcounts')
+                })
+        }
+    }
+    print('Tensors') # tensors
     suppressMessages({
         tensor.list<-list()
+        ranks<-list()
         for (expr_prop in names(comm.scores)){
-            for (score.type in c('natmi', 'sca'))
-                for (counts.type in names(expr.datasets)){
-                    cs<-comm.scores[[expr_prop]][[counts.type]][[score.type]]
-                    tensor.list[[expr_prop]][[score.type]][[counts.type]]<-liana_tensor_c2c(context_df_dict = cs,
-                           score_col = 'score',
-                           ligand_col = 'ligand', 
-                           receptor_col = 'receptor', 
-                           how = 'outer',
-                           lr_fill = NaN, 
-                           cell_fill = NaN,
-                           seed = 888, 
-                           init = 'svd', 
-                           conda_env = env.name,
-                           build_only = F,
-                           rank = tensor.baseline.context[[score.type]])
-                }
-        } 
-    })
+            for (score.type in c('natmi', 'sca')){
+                if (gpu){ #re-calculate rank on each iteration's gold-standard
+                    tensor.list[[expr_prop]][[score.type]][['sim.gold']]<-liana_tensor_c2c_gpu(context_df_dict = comm.scores[[expr_prop]][['sim.gold']][[score.type]], 
+                                                                                               rank = NULL, runs = 3)
+                    ranks[[expr_prop]][[score.type]]<-tensor.list[[expr_prop]][[score.type]][['sim.gold']]$rank
+                    for (counts.type in setdiff(names(expr.datasets), 'sim.gold')){
+                        cs<-comm.scores[[expr_prop]][[counts.type]][[score.type]]
+                        tensor.list[[expr_prop]][[score.type]][[counts.type]]<-liana_tensor_c2c_gpu(context_df_dict = cs, 
+                                                                                                rank = ranks[[expr_prop]][[score.type]])
+                        }
+                }else{ #use baseline simulation
+                    ranks[[expr_prop]][[score.type]]<-tensor.baseline.context[[score.type]]$rank
+                    for (counts.type in names(expr.datasets)){
+                        cs<-comm.scores[[expr_prop]][[counts.type]][[score.type]]
+                        tensor.list[[expr_prop]][[score.type]][[counts.type]]<-liana_tensor_c2c(context_df_dict = cs,
+                                           score_col = 'score',
+                                           ligand_col = 'ligand', 
+                                           receptor_col = 'receptor', 
+                                           how = 'outer',
+                                           lr_fill = NaN, 
+                                           cell_fill = NaN,
+                                           seed = 888, 
+                                           init = 'svd', 
+                                           conda_env = env.name,
+                                           build_only = F,
+                                           rank = tensor.baseline.context[[score.type]]$rank)
+                    }
 
+                }
+            }
+        }
+    })
+                        
     tensor.elements<-list()
     for (expr_prop in names(tensor.list)){
         for (score.type in c('natmi', 'sca')){
             tensor.elements[[expr_prop]][[score.type]]<-length(tensor.list[[expr_prop]][[score.type]]$sim.gold$tensor)
         }
     }                    
-
+    
+    print('CorrIndex')
     corr.index<-list()
     for (expr_prop in names(comm.scores)){
         for (score.type in c('natmi', 'sca')){
@@ -377,23 +616,25 @@ for (iter.params in iter.params.list){
 
             for (counts.type in names(expr.datasets)[2:length(expr.datasets)]){
                 tensor<-tensor.list[[expr_prop]][[score.type]][[counts.type]]
-                similarity.score<-(1 - (c2c$tensor$metrics$correlation_index(tensor.gold$factors, 
-                                                                              tensor$factors)))
+                if (identical(dim(tensor.gold$tensor), dim(tensor$tensor))){
+                    similarity.score<-(1 - (c2c$tensor$metrics$correlation_index(tensor.gold$factors, 
+                                                                  tensor$factors)))
+                }
+                else{
+                    similarity.score<-NA # rare instances when expr_prop = 0.1 filters out some LRs
+                }
                 corr.index[[expr_prop]][[score.type]][[counts.type]]<- similarity.score
             }
         }
     }
 
-    # save
+    print('save') # save
     res<-c(iter, unname(unlist(iter.params)), unname(unlist(batch.severity)), 
-          unname(unlist(corr.index[[1]])), unname(unlist(corr.index[[2]])), 
-         unname(unlist(tensor.elements)))
+          unname(unlist(corr.index)), 
+         unname(unlist(tensor.elements)), unname(unlist(frac.negative)), unlist(unname(ranks)))
     names(res)<-res.col.names
     res.df<-rbind(res.df, t(as.data.frame(res)))
     write.csv(res.df, paste0(data.path, 'interim/', 'batch_correction_benchmark.csv'))
     iter<-iter + 1
 }
 print('Iterations complete')
-
-# check that scVI fraction negative counts is 0
-# are tensor elements across score types and expr_prop the same?
