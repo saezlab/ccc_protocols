@@ -4,14 +4,15 @@
 CONDA="mamba" # conda or mamba
 KERNEL=false # set up jupyter kernel
 ENV_NAME="ccc_protocols" # environment name
+ENV_FILE="env.yml"
 usage()
 {
-  echo "bash -i setup_env.sh [ -c | --conda ] [ -k | --kernel ]
+  echo "bash -i setup_env.sh [ -c | --conda ] [ -k | --kernel ] [ -g | --gpu ]
                              [ -n | --name ENV_NAME ]"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -o ckn: --long conda,kernel,name: -- "$@")
+PARSED_ARGUMENTS=$(getopt -o ckgn: --long conda,kernel,gpu,name: -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -23,6 +24,7 @@ do
   case "$1" in
     -c | --conda)  USE_CONDA=true   ; shift   ;;
     -k | --kernel) KERNEL=true      ; shift   ;;
+    -g | --gpu)    GPU=true         ; shift   ;;
     -n | --name)   ENV_NAME="$2" ; shift 2 ;;
     --) shift; break ;;
     *) echo "Unexpected option: $1 - this should not happen."
@@ -42,9 +44,14 @@ else
       exit 1
   fi
 fi
+# GPU 
+if [[ $GPU == true ]]
+then
+  ENV_FILE="env_gpu.yml"
+fi
 
 # activate environment
-$CONDA env create --name "$ENV_NAME" --file env.yml
+$CONDA env create --name "$ENV_NAME" --file $ENV_FILE
 conda activate "$ENV_NAME"
 
 # check that environment is activated
