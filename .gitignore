@@ -6,3 +6,5 @@
 **/*.RData
 **/*.Rhistory
 **/omnipathr-log/
+**/*.gmt
+**/GSEA/
