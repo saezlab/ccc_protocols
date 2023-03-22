@@ -22,7 +22,7 @@ They are thus fit for use when working with single-cell atlases that contain mul
 4. What kind of data can be used with LIANA & Tensor-c2c
 ========================================================
 
-LIANA typically works with log1p normalized data. Tensor-c2c then takes LIANA's output as input.
+LIANA typically works with log1p normalized data and requires annotated cell groups. Tensor-c2c then takes LIANA's output as input.
 
 
 5. What kind of experimental design can be used with Tensor-c2c
