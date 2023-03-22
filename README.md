@@ -1,4 +1,4 @@
-# LIANA x Tensor-Cell2cell Protocols
+# LIANA x Tensor-cell2cell Protocols
 
 ## Background
 
