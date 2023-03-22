@@ -29,4 +29,4 @@ LIANA typically works with log1p normalized data. Tensor-c2c then takes LIANA's 
 ========================================================================
 
 In theory, Tensor-c2c would work with any experimental design. 
-It will identify hidden factors associated with the experimental conditions, given the condition at hand drives differences between contexts/samples.
+It will then identify hidden factors associated with the experimental conditions in an untargeted manner, given the condition at hand drives differences between contexts/samples.
