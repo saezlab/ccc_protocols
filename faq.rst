@@ -5,6 +5,7 @@ Frequently Asked Questions
 ==================================
 
 LIANA is a ligand-receptor inference tool that can be used on any type of single-cell data following preprocessing and the annotation of the cells into biologically-meaningful cell types.
+It enables the use of different ligand-receptor methods & resources, and also provides a consensus for both.
 
 2. When to use Tensor-c2c?
 ==================================
