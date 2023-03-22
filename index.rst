@@ -4,7 +4,8 @@
 LIANA x Tensor-c2c tutorials
 ----------------------------
 
-Documentation for the joined use of LIANA and Tensor-cell2cell to analyze cell-cell communication from omics data.
+Documentation for the combined use of LIANA and Tensor-cell2cell to analyze cell-cell communication events from omics data.
+
 
 Tool Availability
 =================
