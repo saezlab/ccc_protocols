@@ -3,16 +3,18 @@
 
 CONDA="mamba" # conda or mamba
 KERNEL=false # set up jupyter kernel
+INSTALL_R=true # set up R
 ENV_NAME="ccc_protocols" # environment name
-ENV_FILE="env.yml"
+ENV_FILE="env_python.yml"
+ENV_FILE_R="env_r.yml"
 usage()
 {
   echo "bash -i setup_env.sh [ -c | --conda ] [ -k | --kernel ] [ -g | --gpu ]
-                             [ -n | --name ENV_NAME ]"
+                             [ -p | --python-only ] [ -n | --name ENV_NAME ]"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -o ckgn: --long conda,kernel,gpu,name: -- "$@")
+PARSED_ARGUMENTS=$(getopt -o ckgn: --long conda,kernel,gpu,python-only,name: -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -25,6 +27,7 @@ do
     -c | --conda)  USE_CONDA=true   ; shift   ;;
     -k | --kernel) KERNEL=true      ; shift   ;;
     -g | --gpu)    GPU=true         ; shift   ;;
+    -p | --python-only)   INSTALL_R=false ; shift ;;
     -n | --name)   ENV_NAME="$2" ; shift 2 ;;
     --) shift; break ;;
     *) echo "Unexpected option: $1 - this should not happen."
@@ -47,7 +50,7 @@ fi
 # GPU 
 if [[ $GPU == true ]]
 then
-  ENV_FILE="env_gpu.yml"
+  ENV_FILE="env_python_gpu.yml"
 fi
 
 # activate environment
@@ -63,7 +66,12 @@ if [[ "$ACT_ENV" != "$ENV_NAME" ]]; then
   exit 1
 fi
 
-Rscript setup_env.r # install the R packages not available through conda
+if [[ $INSTALL_R == true ]]
+then
+  $CONDA env update --name "$ENV_NAME" --file $ENV_FILE_R
+  conda activate "$ENV_NAME"
+  Rscript r_installs.r # install the R packages not available through conda
+fi
 
 # install ipykernel and irkernel if not already installed
 if [[ $KERNEL == true ]]
@@ -79,9 +87,13 @@ if [[ $KERNEL == true ]]
     then
       $CONDA install -y -c conda-forge ipykernel
     fi
-    PKG_INSTALLED="$(conda list -n $ENV_NAME r-irkernel | egrep "r-irkernel")"
-    if [[ ${#PKG_INSTALLED} == 0  ]]
+    if [[ $INSTALL_R == true ]]
     then
-      $CONDA install -y -c conda-forge r-irkernel
+      PKG_INSTALLED="$(conda list -n $ENV_NAME r-irkernel | egrep "r-irkernel")"
+      if [[ ${#PKG_INSTALLED} == 0  ]]
+      then
+        $CONDA install -y -c conda-forge r-irkernel
+      fi
     fi
+
 fi
