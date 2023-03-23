@@ -47,6 +47,7 @@ exclude_patterns = []
 master_doc = 'index'
 
 html_theme = 'sphinx_rtd_theme'
+
 html_static_path = ["_static"]
 html_theme_options = dict(
     logo_only=True,
@@ -59,7 +60,10 @@ html_context = dict(
     github_version='main',
     conf_py_path='.',
 )
+
 html_show_sphinx = True
+html_logo = '_static/logo.png'
+html_favicon = '_static/logo.png'
 html_css_files = ['custom.css']
 
 # -- Options for EPUB output

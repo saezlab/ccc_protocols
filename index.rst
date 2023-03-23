@@ -7,6 +7,22 @@ LIANA x Tensor-c2c tutorials
 Documentation for the combined use of LIANA and Tensor-cell2cell to analyze cell-cell communication events from omics data.
 
 
+Background
+==========
+
+In recent years, the data-driven inference of cell-cell communication (CCC), 
+specifically when using single-cell transcriptomics data, has enabled the study of coordinated biological processes across cell types. 
+Yet, as the capabilities to generate large single-cell and spatial transcriptomics datasets continue to increase,
+together with the interest in studying intercellular programmes, the need to easily and robustly decipher CCC is essential.
+Here, we integrate our tools, LIANA and Tensor-cell2cell, to enable identification of intercellular programmes across multiple samples and contexts. 
+We show how our unified framework facilitates the choice of method to infer cell-cell communication 
+and the application of factor analysis to obtain and summarize biological insights. 
+
+
+.. image:: _static/intro.png
+  :width: 550
+
+
 Tool Availability
 =================
 
@@ -15,8 +31,8 @@ https://github.com/earmingol/cell2cell
 
 
 LIANA is available in:
-- R: https://github.com/saezlab/liana
-- Python: https://github.com/saezlab/liana-py
+Python: https://github.com/saezlab/liana-py
+R: https://github.com/saezlab/liana
 
 
 References

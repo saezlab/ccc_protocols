@@ -4,7 +4,7 @@
 
 In recent years, the data-driven inference of cell-cell communication (CCC), specifically when using single-cell transcriptomics data, has enabled the study of coordinated biological processes across cell types. Yet, as the capabilities to generate large single-cell and spatial transcriptomics datasets continue to increase, together with the interest in studying intercellular programmes, the need to easily and robustly decipher CCC is essential. Here, we integrate our tools, [LIANA](https://github.com/saezlab/liana-py) and [Tensor-cell2cell](https://github.com/earmingol/cell2cell), to enable identification of intercellular programmes across multiple samples and contexts. We show how our unified framework facilitates the choice of method to infer cell-cell communication and the application of factor analysis to obtain and summarize biological insights. 
 
-![intro](figures/intro.png)
+![intro](_static/intro.png)
 
 
 ## Tutorials
