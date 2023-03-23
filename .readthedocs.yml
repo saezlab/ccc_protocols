@@ -9,4 +9,3 @@ python:
   - method: pip
     path: .
   - requirements: build_requirements.txt
-  system_packages: true
