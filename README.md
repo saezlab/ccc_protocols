@@ -2,9 +2,14 @@
 
 ## Background
 
-In recent years, the data-driven inference of cell-cell communication from single-cell transcriptomics has helped to reveal coordinated biological processes across cell types. While multiple cell-cell communication tools exist, results are specific to the tool of choice, whose underlying methods remain scattered across distinct computational frameworks. Moreover, tools are often limited to analyzing single samples or to performing pairwise comparisons. As experimental design complexity and sample numbers continue to increase in single-cell atlases, so does the need for generalizable methods to decipher cell-cell communication in such scenarios. Here, we integrate our tools, LIANA and Tensor-cell2cell, to enable the robust and flexible identification of cell-cell communication programs across multiple samples. In this protocol, we show how our unified framework facilitates the choice of method to infer cell-cell communication and subsequently perform an unsupervised deconvolution to obtain and summarize biological insights. We explain step-by-step the way that the analysis is performed in both Python and R and provide online tutorials with detailed instructions, available [TODO here]().
+In recent years, the data-driven inference of cell-cell communication (CCC), specifically when using single-cell transcriptomics data, has enabled the study of coordinated biological processes across cell types. Yet, as the capabilities to generate large single-cell and spatial transcriptomics datasets continue to increase, together with the interest in studying intercellular programmes, the need to easily and robustly decipher CCC is essential. Here, we integrate our tools, [LIANA](https://github.com/saezlab/liana-py) and [Tensor-cell2cell](https://github.com/earmingol/cell2cell), to enable identification of intercellular programmes across multiple samples and contexts. We show how our unified framework facilitates the choice of method to infer cell-cell communication and the application of factor analysis to obtain and summarize biological insights. 
 
 ![intro](figures/intro.png)
+
+
+## Tutorials
+
+Quickstart and step-by-step tutorials in both Python and R are available [here](https://ccc-protocols.readthedocs.io/en/latest/index.html).
 
 
 ## Tool Availability
@@ -16,6 +21,11 @@ https://github.com/earmingol/cell2cell
 LIANA is available in:
 - R: https://github.com/saezlab/liana
 - Python: https://github.com/saezlab/liana-py
+
+
+## Contact Us
+
+Don't hesitate to open issues to this github repository and also refer to the [FAQ section of the documentation](https://ccc-protocols.readthedocs.io/en/latest/faq.html).
 
 
 ## References
