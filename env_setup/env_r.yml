@@ -14,5 +14,6 @@ dependencies:
   - conda-forge::r-furrr #conda-forge::r-furrr=0.3.1=r42hc72bb7e_1
   - conda-forge::r-textshape #conda-forge::r-textshape=1.7.3=r42hc72bb7e_1
   - conda-forge::r-forcats # =1.0.0=r42hc72bb7e_0
-  - conda-forge::r-rstatix # =0.7.2  r42hc72bb7e_0 
+  - conda-forge::r-rstatix # =0.7.2=r42hc72bb7e_0 
+  - conda-forge::r-ggpubr # =0.6.0=r42hc72bb7e_0
   - bioconda::bioconductor-scater # bioconductor::bioconductor-scater=1.26.0=r42hdfd78af_0
