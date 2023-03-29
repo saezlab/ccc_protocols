@@ -1,7 +1,7 @@
-.. LIANA x Tensor-c2c documentation master file, created by
+.. LIANA x Tensor-cell2cell documentation master file, created by
    sphinx-quickstart on Tue Feb 28 14:38:49 2023.
 
-LIANA x Tensor-c2c tutorials
+LIANA x Tensor-cell2cell tutorials
 ----------------------------
 
 Documentation for the combined use of LIANA and Tensor-cell2cell to analyze cell-cell communication events from omics data.
@@ -44,7 +44,7 @@ TODO Baghdassarian, ...
 To cite LIANA:
 Dimitrov, D., Türei, D., Garrido-Rodriguez, M., Burmedi, P.L., Nagai, J.S., Boys, C., Ramirez Flores, R.O., Kim, H., Szalai, B., Costa, I.G. and Valdeolivas, A., 2022. Comparison of methods and resources for cell-cell communication inference from single-cell RNA-Seq data. Nature Communications, 13(1), p.3224.
 
-To cite Tensor-c2c:
+To cite Tensor-cell2cell:
 Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Knight, R. and Lewis, N.E., 2022. Context-aware deconvolution of cell–cell communication with Tensor-cell2cell. Nature communications, 13(1), p.3665.
 
 
