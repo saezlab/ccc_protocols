@@ -76,8 +76,12 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
 
    notebooks/ccc_python/06-Functional-Footprinting.ipynb
 
-   notebooks/ccc_python/S1_Interoperability.ipynb
+   notebooks/ccc_python/S1_Batch_Correction.ipynb
 
+   notebooks/ccc_python/S2_Interoperability.ipynb
+   
+   notebooks/ccc_python/S3_Score_Consistency.ipynb
+   
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -95,8 +99,11 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
 
    notebooks/ccc_R/06-Functional-Footprinting.ipynb
 
-   notebooks/ccc_R/S1_Interoperability.ipynb
+   notebooks/ccc_R/S1_Batch_Correction.ipynb
 
+   notebooks/ccc_R/S2_Interoperability.ipynb
+   
+   notebooks/ccc_R/S3_Score_Consistency.ipynb
 
 .. toctree::
    :maxdepth: 1
