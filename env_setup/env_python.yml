@@ -12,7 +12,7 @@ dependencies:
   - conda-forge::scvi-tools>=0.18 #conda-forge::scvi-tools=0.20.1=pyhd8ed1ab_0
   - conda-forge::scikit-misc=0.1.4 #conda-forge::scikit-misc=0.1.4=py310h3254323_4
   - pip:
-    - cell2cell==0.6.7 # newest vesion
+    - cell2cell==0.6.8 # newest vesion
     - liana==0.1.7 # newest version
     - decoupler==1.3.3
     - omnipath==1.0.6
