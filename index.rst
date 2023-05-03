@@ -39,7 +39,7 @@ References
 ==========
 
 To cite this work: 
-TODO Baghdassarian, ...
+Baghdassarian, H. M., Dimitrov, D., Armingol, E., Saez-Rodriguez, J. & Lewis, N. E. Combining LIANA and Tensor-cell2cell to decipher cell-cell communication across multiple samples. BioRxiv (2023) doi:10.1101/2023.04.28.538731.
 
 To cite LIANA:
 Dimitrov, D., Türei, D., Garrido-Rodriguez, M., Burmedi, P.L., Nagai, J.S., Boys, C., Ramirez Flores, R.O., Kim, H., Szalai, B., Costa, I.G. and Valdeolivas, A., 2022. Comparison of methods and resources for cell-cell communication inference from single-cell RNA-Seq data. Nature Communications, 13(1), p.3224.
