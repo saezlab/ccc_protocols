@@ -9,12 +9,12 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'LIANA x Tensor-c2c'
+project = 'LIANA x Tensor-cell2cell'
 copyright = '2023, Hratch Baghdassarian, Daniel Dimitrov, Erick Armingol, et al'
 author = 'Hratch Baghdassarian, Daniel Dimitrov, Erick Armingol, et al'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.0.2'
 
 
 # -- General configuration ---------------------------------------------------
