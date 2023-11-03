@@ -10,7 +10,7 @@ library(BiocManager)
 # repotools::install.pkgs('NMF', force = F, quiet = T) # how to specify version?
 # remotes::install_github('sqjin/CellChat@c982c7132386454b3611371a29c4593b3c4a01cc', upgrade=F)
 # liana
-remotes::install_github('saezlab/liana@ab70b34066f68df60e9ed0d0ce72b0d00f871b7e', upgrade=F)# most recent
+remotes::install_github('saezlab/liana@4c323df7f0c24be4401cf6ec7d772eaa34b483b1', upgrade=F)# most recent
 
 remotes::install_github("mojaveazure/seurat-disk@9b89970eac2a3bd770e744f63c7763419486b14c", upgrade=F)
 
