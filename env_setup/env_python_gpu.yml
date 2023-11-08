@@ -21,6 +21,8 @@ dependencies:
         - liana==1.0.2
         - decoupler==1.3.3
         - omnipath==1.0.6
+        - plotnine>=0.12.4
+        - seaborn>=0.13.0 # needed for annot = True to work
 # useful links for NVIDIA GPU in conda environment: 
 # https://stackoverflow.com/questions/71162459/why-does-anaconda-install-pytorch-cpuonly-when-i-install-cuda
 # https://github.com/mamba-org/mamba/issues/2194
