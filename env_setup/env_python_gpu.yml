@@ -17,10 +17,10 @@ dependencies:
     - conda-forge::scvi-tools>=0.18 
     - conda-forge::scikit-misc=0.1.4 
     - pip:
-        - cell2cell==0.6.8 
-        - liana==1.0.2
-        - decoupler==1.3.3
-        - omnipath==1.0.6
+        - cell2cell==0.7.2
+        - liana==1.0.3
+        - decoupler==1.5.0
+        - omnipath==1.0.7
         - plotnine>=0.12.4
         - seaborn>=0.13.0 # needed for annot = True to work
 # useful links for NVIDIA GPU in conda environment: 
