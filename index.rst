@@ -52,11 +52,17 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: QuickStart Tutorials
+   :caption: QuickStart Tutorials (COVID-10 BALF)
 
    notebooks/ccc_python/QuickStart.ipynb
 
    notebooks/ccc_R/QuickStart.ipynb
+
+   :caption: QuickStart Tutorials (Lupus PBMCs)
+
+   notebooks/ccc_python/QuickStart_pbmc.ipynb
+
+   notebooks/ccc_R/QuickStart_pbmc.ipynb
 
 
 .. toctree::
@@ -112,6 +118,8 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
    notebooks/ccc_python/S2_Interoperability.ipynb
    
    notebooks/ccc_python/S3_Score_Consistency.ipynb   
+
+   notebooks/ccc_python/S4_Spatial-Decomposition.ipynb 
    
 
 .. toctree::
