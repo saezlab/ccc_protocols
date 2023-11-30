@@ -58,6 +58,9 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
 
    notebooks/ccc_R/QuickStart.ipynb
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
    :caption: QuickStart Tutorials (Lupus PBMCs)
 
    notebooks/ccc_python/QuickStart_pbmc.ipynb
@@ -81,7 +84,7 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
    notebooks/ccc_python/05-Downstream-Visualizations.ipynb
 
    notebooks/ccc_python/06-Functional-Footprinting.ipynb
-   
+
 
 .. toctree::
    :maxdepth: 1
