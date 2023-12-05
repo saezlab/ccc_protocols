@@ -17,12 +17,13 @@ dependencies:
     - conda-forge::scvi-tools>=0.18 
     - conda-forge::scikit-misc=0.1.4 
     - pip:
-        - cell2cell==0.7.2
+        - cell2cell==0.7.3
         - liana==1.0.3
         - decoupler==1.5.0
         - omnipath==1.0.7
         - plotnine>=0.12.4
-        - seaborn>=0.13.0 # needed for annot = True to work
+        - seaborn==0.11.2
+        - statannotations==0.5.0
 # useful links for NVIDIA GPU in conda environment: 
 # https://stackoverflow.com/questions/71162459/why-does-anaconda-install-pytorch-cpuonly-when-i-install-cuda
 # https://github.com/mamba-org/mamba/issues/2194
