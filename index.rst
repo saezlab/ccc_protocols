@@ -52,7 +52,7 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: QuickStart Tutorials (COVID-10 BALF)
+   :caption: COVID-19 - QuickStart Tutorials (BALF)
 
    notebooks/ccc_python/QuickStart.ipynb
 
@@ -61,7 +61,7 @@ Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Kni
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: QuickStart Tutorials (Lupus PBMCs)
+   :caption: Lupus - QuickStart Tutorials (PBMCs)
 
    notebooks/ccc_python/QuickStart_pbmc.ipynb
 
