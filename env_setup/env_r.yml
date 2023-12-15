@@ -16,5 +16,6 @@ dependencies:
   - conda-forge::r-forcats # =1.0.0=r42hc72bb7e_0
   - conda-forge::r-rstatix # =0.7.2=r42hc72bb7e_0 
   - conda-forge::r-ggpubr # =0.6.0=r42hc72bb7e_0
-  - bioconda::bioconductor-scater # bioconductor::bioconductor-scater=1.26.0=r42hdfd78af_0
+  - bioconda::bioconductor-scater=1.26.0 # bioconductor::bioconductor-scater=1.26.0=r42hdfd78af_0
   - bioconda::bioconductor-zellkonverter #=1.8.0=r42hdfd78af_0
+  - conda-forge::r-matrix=1.6_1.1 #1.5_3

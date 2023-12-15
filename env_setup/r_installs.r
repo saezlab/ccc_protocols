@@ -16,3 +16,6 @@ remotes::install_github("mojaveazure/seurat-disk@9b89970eac2a3bd770e744f63c77634
 
 # decoupleR
 BiocManager::install("saezlab/decoupleR@c17d635e0720c86f2386c39ad7dea8614df393f1", update = FALSE)
+
+# scater
+remotes::install_github("davismcc/scater@9c94e669882365534ebb839704b7db7f18885b87", upgrade=F)
