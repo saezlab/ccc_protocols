@@ -5,6 +5,8 @@ channels:
   - nvidia
   - defaults
 dependencies:    
+    - python==3.10
+    - conda-forge::ipython
     - conda-forge::jupyter
     - conda-forge::ipywidgets
     - conda-forge::pip>=22 
@@ -16,6 +18,7 @@ dependencies:
     - pytorch::pytorch=*=*cuda*
     - conda-forge::scvi-tools>=0.18 
     - conda-forge::scikit-misc=0.1.4 
+    - conda-forge::squidpy
     - pip:
         - cell2cell==0.7.3
         - liana==1.0.3
@@ -24,6 +27,7 @@ dependencies:
         - plotnine>=0.12.4
         - seaborn==0.11.2
         - statannotations==0.5.0
+        - matplotlib==3.7.3
 # useful links for NVIDIA GPU in conda environment: 
 # https://stackoverflow.com/questions/71162459/why-does-anaconda-install-pytorch-cpuonly-when-i-install-cuda
 # https://github.com/mamba-org/mamba/issues/2194

@@ -10,12 +10,14 @@ dependencies:
   - conda-forge::scanpy>=1.9 
   - pytorch::pytorch>=1.12 
   - conda-forge::scvi-tools>=0.18 
-  - conda-forge::scikit-misc=0.1.4 
+  - conda-forge::scikit-misc=0.1.4
+  - conda-forge::squidpy
   - pip:
     - cell2cell==0.7.3 # newest vesion
     - liana==1.0.3 # newest version
     - decoupler==1.5.0
     - omnipath==1.0.7
     - plotnine>=0.12.4
-    - seaborn==0.11.2
+    - seaborn==0.13.0
     - statannotations==0.5.0
+    - matplotlib==3.7.3
