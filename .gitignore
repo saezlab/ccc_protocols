@@ -9,3 +9,4 @@
 **/*.gmt
 **/GSEA/
 **/*.h5Seurat
+scripts/
