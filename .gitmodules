@@ -1,0 +1,3 @@
+[submodule "tc2c_benchmark"]
+	path = tc2c_benchmark
+	url = https://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@github.com/hmbaghdassarian/tc2c_benchmark.git
