@@ -30,6 +30,8 @@ Don't hesitate to open issues to this github repository and also refer to the [F
 
 ## References
 
+[![DOI](https://zenodo.org/badge/541880954.svg)](https://zenodo.org/doi/10.5281/zenodo.10614108)
+
 To cite this work: 
 Baghdassarian, H. M., Dimitrov, D., Armingol, E., Saez-Rodriguez, J. & Lewis, N. E. Combining LIANA and Tensor-cell2cell to decipher cell-cell communication across multiple samples. BioRxiv (2023) doi:10.1101/2023.04.28.538731.
 
@@ -38,4 +40,6 @@ Dimitrov, D., Türei, D., Garrido-Rodriguez, M., Burmedi, P.L., Nagai, J.S., Boy
 
 To cite Tensor-cell2cell:
 Armingol, E., Baghdassarian, H.M., Martino, C., Perez-Lopez, A., Aamodt, C., Knight, R. and Lewis, N.E., 2022. Context-aware deconvolution of cell–cell communication with Tensor-cell2cell. Nature communications, 13(1), p.3665.
+
+
 
